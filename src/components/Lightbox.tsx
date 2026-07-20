@@ -5,12 +5,13 @@ import Image from 'next/image';
 
 interface LightboxProps {
   images: string[];
+  event: string;
   initialIndex?: number;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function Lightbox({ images, initialIndex = 0, isOpen, onClose }: LightboxProps) {
+export default function Lightbox({ images, event, initialIndex = 0, isOpen, onClose }: LightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   // Update current index if initialIndex changes when opening
@@ -89,7 +90,7 @@ export default function Lightbox({ images, initialIndex = 0, isOpen, onClose }: 
 
       <div style={{ position: 'relative', width: '90vw', height: '90vh' }} onClick={(e) => e.stopPropagation()}>
         <Image 
-          src={`/Img_Web/${currentImg}`}
+          src={`/Img_Web/${event}/${currentImg}`}
           alt={`Full size image ${currentIndex + 1}`}
           fill
           style={{ objectFit: 'contain' }}

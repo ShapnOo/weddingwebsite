@@ -1,31 +1,41 @@
 import fs from 'fs';
 import path from 'path';
-import Image from 'next/image';
-import HomeGallery from '@/components/HomeGallery';
-import Link from 'next/link';
 import HeroVideo from '@/components/HeroVideo';
+import AlbumCard from '@/components/AlbumCard';
 
 export default async function Home() {
-  // Read images dynamically from the optimized absolute folder path
-  const imgDir = path.join(process.cwd(), 'public', 'Img_Web');
-  let images: string[] = [];
-  
-  try {
-    const files = fs.readdirSync(imgDir);
-    // Filter out only jpg/png
-    images = files.filter(file => file.endsWith('.jpg') || file.endsWith('.png'));
-  } catch (error) {
-    console.error('Failed to read image directory', error);
-    // Fallback images if directory read fails
-    images = ['FrameAlap_Nabila_001.jpg', 'FrameAlap_Nabila_002.jpg', 'FrameAlap_Nabila_003.jpg'];
-  }
+  const events = [
+    { title: 'Marriage Ceremony', slug: 'Marriage' },
+    { title: 'Holud Night', slug: 'Holud' },
+    { title: 'Reception', slug: 'Reception' }
+  ];
 
-  // Pick a hero image and a subset for the gallery
-  const heroImage = images.length > 0 ? images[0] : '';
-  
-  // Get 12 random images for the gallery to keep it clean and fast
-  const shuffled = [...images].sort(() => 0.5 - Math.random());
-  const galleryImages = shuffled.slice(0, 12);
+  const albumsData = events.map(event => {
+    const dirPath = path.join(process.cwd(), 'public', 'Img_Web', event.slug);
+    let count = 0;
+    let coverImage = undefined;
+
+    if (fs.existsSync(dirPath)) {
+      try {
+        const files = fs.readdirSync(dirPath);
+        const images = files.filter(file => file.endsWith('.jpg') || file.endsWith('.png'));
+        count = images.length;
+        if (count > 0) {
+          // You can sort or pick a specific image. We just pick the first one.
+          images.sort();
+          coverImage = images[0];
+        }
+      } catch (e) {
+        console.error(`Failed to read directory for ${event.slug}`);
+      }
+    }
+
+    return {
+      ...event,
+      count,
+      coverImage
+    };
+  });
 
   return (
     <main>
@@ -48,17 +58,27 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Gallery Section */}
+      {/* Events / Albums Section */}
       <section id="gallery" className="section container" style={{ paddingTop: '2rem' }}>
         <h2 className="reveal-on-scroll" style={{ textAlign: 'center', marginBottom: '3rem' }}>Captured Moments</h2>
         
-        <HomeGallery images={galleryImages} />
-        
-        <div style={{ textAlign: 'center', marginTop: '4rem' }} className="reveal-on-scroll">
-          <Link href="/gallery" className="btn" style={{ fontSize: '1rem', padding: '1.2rem 3rem' }}>
-            View All Pictures
-          </Link>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '2rem'
+        }}>
+          {albumsData.map((album, idx) => (
+            <AlbumCard 
+              key={album.slug}
+              title={album.title}
+              eventSlug={album.slug}
+              imageCount={album.count}
+              coverImage={album.coverImage}
+              delay={`${idx * 0.2}s`}
+            />
+          ))}
         </div>
+        
       </section>
       
       {/* Footer */}

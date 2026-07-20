@@ -9,23 +9,30 @@ const __dirname = path.dirname(__filename);
 const inputDir = '/Volumes/Office Files/Marriage Pic/All Edited/Img';
 const outputDir = path.join(process.cwd(), 'public', 'Img_Web');
 
-// Ensure output directory exists
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir, { recursive: true });
-}
+// Process a specific event directory
+async function processEventDirectory(eventName) {
+  const eventInputDir = path.join(inputDir, eventName);
+  const eventOutputDir = path.join(outputDir, eventName);
 
-async function processImages() {
+  if (!fs.existsSync(eventInputDir)) {
+    console.log(`Input directory for ${eventName} not found. Skipping.`);
+    return;
+  }
+
+  if (!fs.existsSync(eventOutputDir)) {
+    fs.mkdirSync(eventOutputDir, { recursive: true });
+  }
+
   try {
-    const files = fs.readdirSync(inputDir);
+    const files = fs.readdirSync(eventInputDir);
     const images = files.filter(file => file.endsWith('.jpg') || file.endsWith('.png'));
 
-    console.log(`Found ${images.length} images. Starting resize process...`);
+    console.log(`\nFound ${images.length} images for ${eventName}. Starting resize process...`);
 
     let count = 0;
-    // Process sequentially or in small batches to not overwhelm memory
     for (const image of images) {
-      const inputPath = path.join(inputDir, image);
-      const outputPath = path.join(outputDir, image.replace('.png', '.jpg')); // Convert all to jpg for web
+      const inputPath = path.join(eventInputDir, image);
+      const outputPath = path.join(eventOutputDir, image.replace('.png', '.jpg')); 
 
       // Skip if already processed
       if (!fs.existsSync(outputPath)) {
@@ -42,19 +49,25 @@ async function processImages() {
             
           count++;
           if (count % 10 === 0) {
-            console.log(`Processed ${count}/${images.length} images...`);
+            console.log(`[${eventName}] Processed ${count}/${images.length} new images...`);
           }
         } catch (err) {
-          console.error(`Failed to process ${image}:`, err);
+          console.error(`[${eventName}] Failed to process ${image}:`, err);
         }
       }
     }
-
-    console.log(`\nFinished! Successfully processed ${count} images.`);
-    console.log(`Images are saved in: ${outputDir}`);
+    console.log(`Finished ${eventName}! Processed ${count} new images.`);
   } catch (err) {
-    console.error('Error reading directory:', err);
+    console.error(`Error reading directory for ${eventName}:`, err);
   }
 }
 
-processImages();
+async function processAllEvents() {
+  const events = ['Marriage', 'Holud', 'Reception'];
+  for (const event of events) {
+    await processEventDirectory(event);
+  }
+  console.log(`\nAll events processed! Images are saved in: ${outputDir}`);
+}
+
+processAllEvents();
