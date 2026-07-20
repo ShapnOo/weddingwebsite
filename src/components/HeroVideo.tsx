@@ -12,10 +12,28 @@ export default function HeroVideo() {
       setHasEntered(true);
       if (iframeRef.current && iframeRef.current.contentWindow) {
         iframeRef.current.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        iframeRef.current.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
       }
     }, 3000);
 
-    return () => clearTimeout(timer);
+    // Mobile devices heavily block unmuted autoplay. 
+    // We attach a one-time global click/touch listener to unmute the video the moment they interact with the page.
+    const handleFirstInteraction = () => {
+      if (iframeRef.current && iframeRef.current.contentWindow) {
+        iframeRef.current.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+      }
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+    };
+
+    window.addEventListener('click', handleFirstInteraction);
+    window.addEventListener('touchstart', handleFirstInteraction);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+    };
   }, []);
 
   return (
@@ -34,7 +52,7 @@ export default function HeroVideo() {
       {/* Background YouTube Video */}
       <iframe
         ref={iframeRef}
-        src="https://www.youtube.com/embed/aMVks48wN5M?autoplay=1&mute=0&loop=1&playlist=aMVks48wN5M&controls=0&showinfo=0&rel=0&playsinline=1&cc_load_policy=0&vq=hd1080&enablejsapi=1"
+        src="https://www.youtube.com/embed/aMVks48wN5M?autoplay=1&mute=1&loop=1&playlist=aMVks48wN5M&controls=0&showinfo=0&rel=0&playsinline=1&cc_load_policy=0&vq=hd1080&enablejsapi=1"
         style={{
           position: 'absolute',
           top: '50%',
