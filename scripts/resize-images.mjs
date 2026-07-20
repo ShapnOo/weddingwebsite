@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const inputDir = '/Volumes/Office Files/Marriage Pic/All Edited/Img';
+const inputDir = '/Volumes/Office Files/Marriage Pic/All Edited';
 const outputDir = path.join(process.cwd(), 'public', 'Img_Web');
 
 // Process a specific event directory
@@ -63,7 +63,7 @@ async function processEventDirectory(eventName) {
 }
 
 async function processAllEvents() {
-  const events = ['Marriage', 'Holud', 'Reception'];
+  const events = ['holud'];
   for (const event of events) {
     await processEventDirectory(event);
   }
