@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 
 export default function HeroVideo() {
   const [hasEntered, setHasEntered] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -16,12 +17,14 @@ export default function HeroVideo() {
       }
     }, 3000);
 
-    // Mobile devices heavily block unmuted autoplay. 
-    // We attach a one-time global click/touch listener to unmute the video the moment they interact with the page.
+    // Mobile devices and strict browsers block unmuted autoplay or autoplay completely on new domains. 
+    // We attach a one-time global click/touch listener to ensure playback and unmute.
     const handleFirstInteraction = () => {
       if (iframeRef.current && iframeRef.current.contentWindow) {
+        iframeRef.current.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
         iframeRef.current.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
       }
+      setIsPlaying(true);
       window.removeEventListener('click', handleFirstInteraction);
       window.removeEventListener('touchstart', handleFirstInteraction);
     };
@@ -35,6 +38,15 @@ export default function HeroVideo() {
       window.removeEventListener('touchstart', handleFirstInteraction);
     };
   }, []);
+
+  const togglePlay = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the global interaction listener if clicked first
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      const func = isPlaying ? 'pauseVideo' : 'playVideo';
+      iframeRef.current.contentWindow.postMessage(`{"event":"command","func":"${func}","args":""}`, '*');
+      setIsPlaying(!isPlaying);
+    }
+  };
 
   return (
     <section 
@@ -159,6 +171,44 @@ export default function HeroVideo() {
         <a href="#gallery" className="btn">View Highlights</a>
       </div>
 
+      {/* Play/Pause Button */}
+      <button 
+        onClick={togglePlay}
+        style={{
+          position: 'absolute',
+          bottom: '2rem',
+          right: '2rem',
+          zIndex: 20,
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid var(--glass-border)',
+          borderRadius: '50%',
+          width: '56px',
+          height: '56px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--accent-gold)',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          opacity: hasEntered ? 1 : 0,
+          pointerEvents: hasEntered ? 'auto' : 'none',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+        }}
+        aria-label={isPlaying ? "Pause Video" : "Play Video"}
+      >
+        {isPlaying ? (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+          </svg>
+        ) : (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        )}
+      </button>
+
       <style>{`
         @keyframes fillProgress {
           0% { transform: scaleX(0); }
@@ -172,6 +222,10 @@ export default function HeroVideo() {
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
+        }
+        button:hover {
+          background: rgba(197, 163, 101, 0.2) !important;
+          transform: scale(1.05);
         }
       `}</style>
     </section>
