@@ -3,6 +3,7 @@ import path from 'path';
 import Image from 'next/image';
 import HomeGallery from '@/components/HomeGallery';
 import Link from 'next/link';
+import HeroVideo from '@/components/HeroVideo';
 
 export default async function Home() {
   // Read images dynamically from the optimized absolute folder path
@@ -29,33 +30,7 @@ export default async function Home() {
   return (
     <main>
       {/* Hero Section */}
-      <section 
-        className="section" 
-        style={{ 
-          backgroundImage: `linear-gradient(to bottom, rgba(13, 14, 18, 0.4), rgba(13, 14, 18, 1)), url('/Img_Web/${heroImage}')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center'
-        }}
-      >
-        <div className="container reveal-on-scroll" style={{ animationDelay: '0.2s' }}>
-          <h4 style={{ color: 'var(--accent-gold)', letterSpacing: '4px', marginBottom: '1rem', textTransform: 'uppercase' }}>
-            We're Getting Married
-          </h4>
-          <h1 style={{ marginBottom: '2rem', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-            Tahmid & Nabila
-          </h1>
-          <p style={{ fontSize: '1.25rem', color: 'var(--text-primary)', maxWidth: '600px', margin: '0 auto', marginBottom: '3rem' }}>
-            A celebration of love, family, and a beautiful new beginning.
-          </p>
-          <a href="#gallery" className="btn">View Highlights</a>
-        </div>
-      </section>
+      <HeroVideo />
 
       {/* Our Story Section */}
       <section className="section container">
