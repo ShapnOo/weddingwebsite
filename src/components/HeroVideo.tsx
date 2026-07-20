@@ -12,7 +12,7 @@ export default function HeroVideo() {
       setHasEntered(true);
       if (iframeRef.current && iframeRef.current.contentWindow) {
         iframeRef.current.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-        iframeRef.current.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+        // We do NOT unmute here, because browsers will block playback if we unmute without user interaction
       }
     }, 3000);
 

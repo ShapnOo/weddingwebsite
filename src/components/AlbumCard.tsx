@@ -6,9 +6,10 @@ interface AlbumCardProps {
   imageCount: number;
   coverImage?: string;
   delay: string;
+  date?: string;
 }
 
-export default function AlbumCard({ title, eventSlug, imageCount, coverImage, delay }: AlbumCardProps) {
+export default function AlbumCard({ title, eventSlug, imageCount, coverImage, delay, date }: AlbumCardProps) {
   const isComingSoon = imageCount === 0;
 
   return (
@@ -55,6 +56,11 @@ export default function AlbumCard({ title, eventSlug, imageCount, coverImage, de
           textAlign: 'center'
         }}
       >
+        {date && (
+          <p style={{ color: 'var(--accent-gold-light)', textTransform: 'uppercase', letterSpacing: '3px', fontSize: '0.75rem', marginBottom: '0.5rem' }}>
+            {date}
+          </p>
+        )}
         <h3 style={{ color: 'var(--accent-gold)', marginBottom: '0.5rem', fontSize: '1.8rem' }}>{title}</h3>
         <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.85rem' }}>
           {isComingSoon ? 'Coming Soon' : `${imageCount} Photos`}
